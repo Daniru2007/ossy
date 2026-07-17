@@ -1,0 +1,112 @@
+
+kernel.bin:     file format elf32-i386
+
+
+Disassembly of section .text:
+
+00101000 <_start>:
+  101000:	bc 00 60 10 00       	mov    $0x106000,%esp
+  101005:	e8 86 00 00 00       	call   101090 <kernel_main>
+  10100a:	fa                   	cli
+  10100b:	f4                   	hlt
+  10100c:	eb fd                	jmp    10100b <_start+0xb>
+  10100e:	cc                   	int3
+  10100f:	cc                   	int3
+
+00101010 <gdt_flush>:
+  101010:	8b 44 24 04          	mov    0x4(%esp),%eax
+  101014:	0f 01 10             	lgdtl  (%eax)
+  101017:	66 b8 10 00          	mov    $0x10,%ax
+  10101b:	8e d8                	mov    %eax,%ds
+  10101d:	8e c0                	mov    %eax,%es
+  10101f:	8e e0                	mov    %eax,%fs
+  101021:	8e e8                	mov    %eax,%gs
+  101023:	8e d0                	mov    %eax,%ss
+  101025:	ea 2c 10 10 00 08 00 	ljmp   $0x8,$0x10102c
+
+0010102c <.flush>:
+  10102c:	c3                   	ret
+  10102d:	cc                   	int3
+  10102e:	cc                   	int3
+  10102f:	cc                   	int3
+
+00101030 <gdt_install>:
+  101030:	55                   	push   %ebp
+  101031:	89 e5                	mov    %esp,%ebp
+  101033:	66 c7 05 00 60 10 00 	movw   $0x27,0x106000
+  10103a:	27 00 
+  10103c:	c7 05 02 60 10 00 06 	movl   $0x106006,0x106002
+  101043:	60 10 00 
+  101046:	c7 05 06 60 10 00 00 	movl   $0x0,0x106006
+  10104d:	00 00 00 
+  101050:	0f 28 05 20 00 10 00 	movaps 0x100020,%xmm0
+  101057:	0f 11 05 0a 60 10 00 	movups %xmm0,0x10600a
+  10105e:	0f 28 05 10 00 10 00 	movaps 0x100010,%xmm0
+  101065:	0f 11 05 1a 60 10 00 	movups %xmm0,0x10601a
+  10106c:	c7 05 2a 60 10 00 00 	movl   $0xcff200,0x10602a
+  101073:	f2 cf 00 
+  101076:	68 00 60 10 00       	push   $0x106000
+  10107b:	e8 90 ff ff ff       	call   101010 <gdt_flush>
+  101080:	83 c4 04             	add    $0x4,%esp
+  101083:	5d                   	pop    %ebp
+  101084:	c3                   	ret
+  101085:	cc                   	int3
+  101086:	cc                   	int3
+  101087:	cc                   	int3
+  101088:	cc                   	int3
+  101089:	cc                   	int3
+  10108a:	cc                   	int3
+  10108b:	cc                   	int3
+  10108c:	cc                   	int3
+  10108d:	cc                   	int3
+  10108e:	cc                   	int3
+  10108f:	cc                   	int3
+
+00101090 <kernel_main>:
+  101090:	55                   	push   %ebp
+  101091:	89 e5                	mov    %esp,%ebp
+  101093:	e8 98 ff ff ff       	call   101030 <gdt_install>
+  101098:	c6 05 00 80 0b 00 48 	movb   $0x48,0xb8000
+  10109f:	c6 05 01 80 0b 00 07 	movb   $0x7,0xb8001
+  1010a6:	c6 05 02 80 0b 00 65 	movb   $0x65,0xb8002
+  1010ad:	c6 05 03 80 0b 00 07 	movb   $0x7,0xb8003
+  1010b4:	c6 05 04 80 0b 00 6c 	movb   $0x6c,0xb8004
+  1010bb:	c6 05 05 80 0b 00 07 	movb   $0x7,0xb8005
+  1010c2:	c6 05 06 80 0b 00 6c 	movb   $0x6c,0xb8006
+  1010c9:	c6 05 07 80 0b 00 07 	movb   $0x7,0xb8007
+  1010d0:	c6 05 08 80 0b 00 6f 	movb   $0x6f,0xb8008
+  1010d7:	c6 05 09 80 0b 00 07 	movb   $0x7,0xb8009
+  1010de:	c6 05 0a 80 0b 00 20 	movb   $0x20,0xb800a
+  1010e5:	c6 05 0b 80 0b 00 07 	movb   $0x7,0xb800b
+  1010ec:	c6 05 0c 80 0b 00 66 	movb   $0x66,0xb800c
+  1010f3:	c6 05 0d 80 0b 00 07 	movb   $0x7,0xb800d
+  1010fa:	c6 05 0e 80 0b 00 72 	movb   $0x72,0xb800e
+  101101:	c6 05 0f 80 0b 00 07 	movb   $0x7,0xb800f
+  101108:	c6 05 10 80 0b 00 6f 	movb   $0x6f,0xb8010
+  10110f:	c6 05 11 80 0b 00 07 	movb   $0x7,0xb8011
+  101116:	c6 05 12 80 0b 00 6d 	movb   $0x6d,0xb8012
+  10111d:	c6 05 13 80 0b 00 07 	movb   $0x7,0xb8013
+  101124:	c6 05 14 80 0b 00 20 	movb   $0x20,0xb8014
+  10112b:	c6 05 15 80 0b 00 07 	movb   $0x7,0xb8015
+  101132:	c6 05 16 80 0b 00 6d 	movb   $0x6d,0xb8016
+  101139:	c6 05 17 80 0b 00 07 	movb   $0x7,0xb8017
+  101140:	c6 05 18 80 0b 00 79 	movb   $0x79,0xb8018
+  101147:	c6 05 19 80 0b 00 07 	movb   $0x7,0xb8019
+  10114e:	c6 05 1a 80 0b 00 20 	movb   $0x20,0xb801a
+  101155:	c6 05 1b 80 0b 00 07 	movb   $0x7,0xb801b
+  10115c:	c6 05 1c 80 0b 00 6b 	movb   $0x6b,0xb801c
+  101163:	c6 05 1d 80 0b 00 07 	movb   $0x7,0xb801d
+  10116a:	c6 05 1e 80 0b 00 65 	movb   $0x65,0xb801e
+  101171:	c6 05 1f 80 0b 00 07 	movb   $0x7,0xb801f
+  101178:	c6 05 20 80 0b 00 72 	movb   $0x72,0xb8020
+  10117f:	c6 05 21 80 0b 00 07 	movb   $0x7,0xb8021
+  101186:	c6 05 22 80 0b 00 6e 	movb   $0x6e,0xb8022
+  10118d:	c6 05 23 80 0b 00 07 	movb   $0x7,0xb8023
+  101194:	c6 05 24 80 0b 00 65 	movb   $0x65,0xb8024
+  10119b:	c6 05 25 80 0b 00 07 	movb   $0x7,0xb8025
+  1011a2:	c6 05 26 80 0b 00 6c 	movb   $0x6c,0xb8026
+  1011a9:	c6 05 27 80 0b 00 07 	movb   $0x7,0xb8027
+  1011b0:	c6 05 28 80 0b 00 21 	movb   $0x21,0xb8028
+  1011b7:	c6 05 29 80 0b 00 07 	movb   $0x7,0xb8029
+  1011be:	5d                   	pop    %ebp
+  1011bf:	c3                   	ret
