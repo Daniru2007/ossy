@@ -17,6 +17,9 @@ idt_flush.o: idt_flush.s
 isr.o: isr.s
 	clang -target $(TARGET) -c isr.s -o isr.o
 
+irq.o: irq.s
+	clang -target $(TARGET) -c irq.s -o irq.o
+
 gdt.o: gdt.c gdt.h
 	$(CC) $(CFLAGS) -c gdt.c -o gdt.o
 
@@ -26,11 +29,17 @@ idt.o: idt.c idt.h
 isr_c.o: isr.c
 	$(CC) $(CFLAGS) -c isr.c -o isr_c.o
 
-kernel.o: kernel.c gdt.h idt.h
+irq_c.o: irq.c pic.h
+	$(CC) $(CFLAGS) -c irq.c -o irq_c.o
+
+pic.o: pic.c pic.h
+	$(CC) $(CFLAGS) -c pic.c -o pic.o
+
+kernel.o: kernel.c gdt.h idt.h pic.h
 	$(CC) $(CFLAGS) -c kernel.c -o kernel.o
 
-kernel.bin: boot.o gdt_flush.o idt_flush.o isr.o gdt.o idt.o isr_c.o kernel.o linker.ld
-	ld.lld $(LDFLAGS) -o kernel.bin boot.o gdt_flush.o idt_flush.o isr.o gdt.o idt.o isr_c.o kernel.o
+kernel.bin: boot.o gdt_flush.o idt_flush.o isr.o irq.o gdt.o idt.o isr_c.o irq_c.o pic.o kernel.o linker.ld
+	ld.lld $(LDFLAGS) -o kernel.bin boot.o gdt_flush.o idt_flush.o isr.o irq.o gdt.o idt.o isr_c.o irq_c.o pic.o kernel.o
 
 clean:
 	rm -f *.o kernel.bin
