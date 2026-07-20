@@ -2,11 +2,13 @@
 #include "gdt.h"
 #include "idt.h"
 #include "pic.h"
+#include "pit.h"
 
 void kernel_main(void) {
     gdt_install();
     idt_install();
     pic_remap();
+    pit_init(100);   /* 100 ticks per second */
     __asm__ __volatile__ ("sti");   /* actually enable interrupts */
     const char *str = "Hello from my kernel!";
     volatile char *vga = (volatile char*) 0xB8000; // VGA text buffer, direct memory-mapped I/O
@@ -14,5 +16,8 @@ void kernel_main(void) {
     for (int i = 0; str[i] != '\0'; i++) {
         vga[i*2]     = str[i];
         vga[i*2 + 1] = 0x07; // light grey on black
+    }
+    while (1) {
+        __asm__ __volatile__ ("hlt");
     }
 }
