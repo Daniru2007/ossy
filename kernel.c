@@ -37,6 +37,10 @@ void kernel_main(uint32_t magic, uint32_t mbi_addr) {
     paging_init();
     vga_print_at(3, "Paging enabled.", 0x0B);
 
+    volatile uint32_t *bad_ptr = (volatile uint32_t *)0x01000000;
+    volatile uint32_t test = *bad_ptr;
+    (void)test;
+
     __asm__ __volatile__ ("sti");
 
     vga_print_at(0, "Hello from my kernel!", 0x07);
