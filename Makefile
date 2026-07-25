@@ -41,11 +41,14 @@ pit.o: pit.c pit.h io.h
 pmm.o: pmm.c pmm.h multiboot.h
 	$(CC) $(CFLAGS) -c pmm.c -o pmm.o
 
-kernel.o: kernel.c gdt.h idt.h pic.h pit.h pmm.h multiboot.h
+paging.o: paging.c paging.h pmm.h
+	$(CC) $(CFLAGS) -c paging.c -o paging.o
+
+kernel.o: kernel.c gdt.h idt.h pic.h pit.h pmm.h multiboot.h paging.h
 	$(CC) $(CFLAGS) -c kernel.c -o kernel.o
 
-kernel.bin: boot.o gdt_flush.o idt_flush.o isr.o irq.o gdt.o idt.o isr_c.o irq_c.o pic.o pit.o pmm.o kernel.o linker.ld
-	ld.lld $(LDFLAGS) -o kernel.bin boot.o gdt_flush.o idt_flush.o isr.o irq.o gdt.o idt.o isr_c.o irq_c.o pic.o pit.o pmm.o kernel.o
+kernel.bin: boot.o gdt_flush.o idt_flush.o isr.o irq.o gdt.o idt.o isr_c.o irq_c.o pic.o pit.o pmm.o paging.o kernel.o linker.ld
+	ld.lld $(LDFLAGS) -o kernel.bin boot.o gdt_flush.o idt_flush.o isr.o irq.o gdt.o idt.o isr_c.o irq_c.o pic.o pit.o pmm.o paging.o kernel.o
 
 clean:
 	rm -f *.o kernel.bin

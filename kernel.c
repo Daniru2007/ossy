@@ -4,6 +4,7 @@
 #include "pit.h"
 #include "pmm.h"
 #include "multiboot.h"
+#include "paging.h"
 
 extern uint32_t kernel_end;  /* provided by linker.ld */
 
@@ -33,6 +34,9 @@ void kernel_main(uint32_t magic, uint32_t mbi_addr) {
     idt_install();
     pic_remap();
     pit_init(100);
+    paging_init();
+    vga_print_at(3, "Paging enabled.", 0x0B);
+
     __asm__ __volatile__ ("sti");
 
     vga_print_at(0, "Hello from my kernel!", 0x07);

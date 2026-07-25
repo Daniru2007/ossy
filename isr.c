@@ -33,10 +33,33 @@ static void vga_print(const char *str) {
     row++;
 }
 
+static void hex_to_str(uint32_t val, char *buf) {
+    const char *digits = "0123456789ABCDEF";
+    buf[0] = '0'; buf[1] = 'x';
+    for (int i = 0; i < 8; i++) {
+        buf[9 - i] = digits[val & 0xF];
+        val >>= 4;
+    }
+    buf[10] = '\0';
+}
+
 void isr_handler(struct registers regs) {
     if (regs.int_no < 32) {
         vga_print("EXCEPTION:");
         vga_print(exception_messages[regs.int_no]);
+
+        if (regs.int_no == 14) { /* Page Fault -- CR2 holds the faulting address */
+            uint32_t fault_addr;
+            __asm__ __volatile__ ("mov %%cr2, %0" : "=r"(fault_addr));
+
+            char buf[16] = "Address: ";
+            char hex[11];
+            hex_to_str(fault_addr, hex);
+            int i = 0; while (buf[i] != '\0') i++;
+            int j = 0; while (hex[j] != '\0') buf[i++] = hex[j++];
+            buf[i] = '\0';
+            vga_print(buf);
+        }
     }
 
     for (;;) {
