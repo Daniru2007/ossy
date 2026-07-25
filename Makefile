@@ -44,11 +44,17 @@ pmm.o: pmm.c pmm.h multiboot.h
 paging.o: paging.c paging.h pmm.h
 	$(CC) $(CFLAGS) -c paging.c -o paging.o
 
-kernel.o: kernel.c gdt.h idt.h pic.h pit.h pmm.h multiboot.h paging.h
+task_switch.o: task_switch.s
+	clang -target i686-elf -c task_switch.s -o task_switch.o
+
+task.o: task.c task.h pmm.h
+	$(CC) $(CFLAGS) -c task.c -o task.o
+
+kernel.o: kernel.c gdt.h idt.h pic.h pit.h pmm.h multiboot.h paging.h task.h
 	$(CC) $(CFLAGS) -c kernel.c -o kernel.o
 
-kernel.bin: boot.o gdt_flush.o idt_flush.o isr.o irq.o gdt.o idt.o isr_c.o irq_c.o pic.o pit.o pmm.o paging.o kernel.o linker.ld
-	ld.lld $(LDFLAGS) -o kernel.bin boot.o gdt_flush.o idt_flush.o isr.o irq.o gdt.o idt.o isr_c.o irq_c.o pic.o pit.o pmm.o paging.o kernel.o
+kernel.bin: boot.o gdt_flush.o idt_flush.o isr.o irq.o gdt.o idt.o isr_c.o irq_c.o pic.o pit.o pmm.o paging.o task_switch.o task.o kernel.o linker.ld
+	ld.lld $(LDFLAGS) -o kernel.bin boot.o gdt_flush.o idt_flush.o isr.o irq.o gdt.o idt.o isr_c.o irq_c.o pic.o pit.o pmm.o paging.o task_switch.o task.o kernel.o
 
 clean:
 	rm -f *.o kernel.bin

@@ -5,6 +5,7 @@
 #include "pmm.h"
 #include "multiboot.h"
 #include "paging.h"
+#include "task.h"
 
 extern uint32_t kernel_end;  /* provided by linker.ld */
 
@@ -29,6 +30,34 @@ static void vga_print_at(int row, const char *str, uint8_t color) {
     }
 }
 
+static void task_a(void) {
+    volatile char *vga = (volatile char*) 0xB8000;
+    uint32_t counter = 0;
+    while (1) {
+        int row = 4;
+        char c = 'A' + (counter % 26);
+        vga[(row * 80) * 2]     = c;
+        vga[(row * 80) * 2 + 1] = 0x0E;
+        counter++;
+        for (volatile int i = 0; i < 3000000; i++); /* crude delay so it's visible */
+        task_yield();
+    }
+}
+
+static void task_b(void) {
+    volatile char *vga = (volatile char*) 0xB8000;
+    uint32_t counter = 0;
+    while (1) {
+        int row = 5;
+        char c = 'a' + (counter % 26);
+        vga[(row * 80) * 2]     = c;
+        vga[(row * 80) * 2 + 1] = 0x0D;
+        counter++;
+        for (volatile int i = 0; i < 3000000; i++);
+        task_yield();
+    }
+}
+
 void kernel_main(uint32_t magic, uint32_t mbi_addr) {
     gdt_install();
     idt_install();
@@ -36,11 +65,6 @@ void kernel_main(uint32_t magic, uint32_t mbi_addr) {
     pit_init(100);
     paging_init();
     vga_print_at(3, "Paging enabled.", 0x0B);
-
-    volatile uint32_t *bad_ptr = (volatile uint32_t *)0x01000000;
-    volatile uint32_t test = *bad_ptr;
-    (void)test;
-
     __asm__ __volatile__ ("sti");
 
     vga_print_at(0, "Hello from my kernel!", 0x07);
@@ -62,7 +86,11 @@ void kernel_main(uint32_t magic, uint32_t mbi_addr) {
         vga_print_at(1, buf, 0x0A);
     }
 
+    tasking_init();
+    task_create(task_a);
+    task_create(task_b);
+
     while (1) {
-        __asm__ __volatile__ ("hlt");
+        task_yield();
     }
 }
